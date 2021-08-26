@@ -12,6 +12,11 @@
 % this allows to change them in the main document
 \def\poem@handleoptions#1{\protected@edef\@tmpa{#1}\@for\opt:=\@tmpa\do{\poem@handle@ption{\opt}}}
 
+\newif\ifpoem@forcekomadisabled@
+\newif\ifpoem@comp@koma@
+\DeclareOption{koma}{\poem@comp@koma@true\poem@forcekomadisabled@false}
+\DeclareOption{nokoma}{\poem@forcekomadisabled@true}
+
 \DeclareOption{fancy}{\poem@fancy@true}
 \DeclareOption{plain}{\poem@fancy@false}
 \DeclareOption{center}{\poem@handleoptions{vcenter,hcenter}}
@@ -19,6 +24,41 @@
 \DeclareOption*{\poem@handleoptions{\CurrentOption}}
 \ExecuteOptions{nocenter}
 \ProcessOptions*
+
+\@ifclassloaded{scrartcl}{\poem@comp@koma@true}{}
+\@ifclassloaded{scrreprt}{\poem@comp@koma@true}{}
+\@ifclassloaded{scrbook}{\poem@comp@koma@true}{}
+
+\ifpoem@forcekomadisabled@ \poem@comp@koma@false \fi
+\def\poemlistofheading#1{%
+    \PackageWarning{lithie-boxes}{This command is only available with the koma-compatibilities.}%
+}
+
+% list of :D
+\AtBeginDocument{\@ifpackageloaded{microtype}{%
+    \def\poem@ls@microtypehook{\microtypesetup{protrusion=false}}
+}{\def\poem@ls@microtypehook{}}}%
+\ifpoem@comp@koma@
+\def\poemlistofheading#1{\def\poem@listof@heading##1{#1}}
+\poemlistofheading{\section*{#1\@mkboth{#1}{#1}}}
+\AtBeginDocument{\let\poem@starttoc\@starttoc}
+\typeout{Koma-Script detected.}%
+\def\poem@newlistof#1#2#3{%
+\newcounter{#1}%
+\expandafter\newlength\csname cft#1numwidth\endcsname
+\expandafter\gdef\csname l@#1\endcsname##1##2{\@dottedtocline{1}{\csname cft#1numwidth\endcsname}{\csname cft#1numwidth\endcsname}{##1}{##2}}%
+\expandafter\gdef\csname listof#1\endcsname{\begingroup
+    \poem@ls@microtypehook
+    \def\contentsname{#3}% may?
+    \poem@listof@heading{\contentsname}%
+    \poem@starttoc{#2}%
+\endgroup}%
+}%
+\else
+\RequirePackage{tocloft}
+\let\poem@newlistof\newlistof\fi
+
+% subdue
 
 {\catcode `\^^M\active%
 	\gdef\poem@@subdue{\catcode `\^^M\active\def^^M{\leavevmode\\*}}%
