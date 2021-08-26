@@ -1,0 +1,50 @@
+\def\filename{poems}
+\ProvidesPackage{\filename}[2021/8/26 v1.0 poems in latex]
+\newif\ifpoem@fancy@
+
+\let\poem@opts\@empty
+\def\poem@opt#1#2{\expandafter\def\csname @poem@#1\endcsname{#2}\g@addto@macro\poem@opts{'#1', }}
+\poem@opt{vcenter}{\def\poem@nvfill{\null\vfill}\def\poem@vfilln{\vfill\null}}
+\poem@opt{novcenter}{\let\poem@nvfill\relax\let\poem@vfilln\relax}
+\poem@opt{hcenter}{\let\poem@center\centering\relax}
+\poem@opt{nohcenter}{\let\poem@center\relax}
+\def\poem@handle@ption#1{\ifcsname @poem@#1\endcsname\csname @poem@#1\endcsname\else\PackageError{\filename}{The option '#1' is not known'}{Try one of \poem@opts}\fi}
+% this allows to change them in the main document
+\def\poem@handleoptions#1{\protected@edef\@tmpa{#1}\@for\opt:=\@tmpa\do{\poem@handle@ption{\opt}}}
+
+\DeclareOption{fancy}{\poem@fancy@true}
+\DeclareOption{plain}{\poem@fancy@false}
+\DeclareOption{center}{\poem@handleoptions{vcenter,hcenter}}
+\DeclareOption{nocenter}{\poem@handleoptions{novcenter,nohcenter}}
+\DeclareOption*{\poem@handleoptions{\CurrentOption}}
+\ExecuteOptions{nocenter}
+\ProcessOptions*
+
+{\catcode `\^^M\active%
+	\gdef\poem@subdue{\catcode `\^^M\active\def^^M{\leavevmode\\*}}
+}
+
+\def\poem@init#1{\begingroup\ifx!#1!\else\poem@handleoptions{#1}\fi\poem@nvfill\poem@center
+\def\title##1{\def\poem@title{##1}}%
+\def\author##1{\def\poem@author{##1}}%
+\def\date##1{\def\poem@date{##1}}%
+\def\comment##1{\def\poem@comment{##1}}%
+% start will inflict another begingroup
+\def\start{\poem@typesettitle\begingroup\poem@subdue\ignorespaces}}
+\def\poem@exit{\poem@typesetend\endgroup\endgroup\poem@vfilln}
+\def\poem@reg#1{\csname poem@#1\endcsname}
+\def\poem@firstoftwo#1#2{#1}
+\def\poem@secondoftwo#1#2{#2}
+\def\poem@ifreg#1{\ifcsname poem@#1\endcsname\expandafter\poem@firstoftwo\else\expandafter\poem@secondoftwo\fi}
+
+\newenvironment{poem}[1][]{\poem@init{#1}}{\poem@exit\clearpage}
+\newenvironment{poem*}[1][]{\poem@init{#1}}{\poem@exit}
+
+\ifpoem@fancy@
+
+\else
+\def\poem@typesettitle{\normalfont\normalsize\rmfamily\parindent\z@\relax\par\textbf{\poem@reg{title}}\par{\footnotesize\itshape\poem@reg{author}\poem@ifreg{date}{~--- \poem@reg{date}}{}\poem@ifreg{comment}{\begin{center}\poem@reg{comment}\end{center}}{}}\parskip.33\baselineskip\relax\par}
+\def\poem@typesetend{\par}
+\fi
+
+\endinput
