@@ -12,11 +12,6 @@
 % this allows to change them in the main document
 \def\poem@handleoptions#1{\protected@edef\@tmpa{#1}\@for\opt:=\@tmpa\do{\poem@handle@ption{\opt}}}
 
-\newif\ifpoem@forcekomadisabled@
-\newif\ifpoem@comp@koma@
-\DeclareOption{koma}{\poem@comp@koma@true\poem@forcekomadisabled@false}
-\DeclareOption{nokoma}{\poem@forcekomadisabled@true}
-
 \DeclareOption{fancy}{\poem@fancy@true}
 \DeclareOption{plain}{\poem@fancy@false}
 \DeclareOption{center}{\poem@handleoptions{vcenter,hcenter}}
@@ -25,41 +20,33 @@
 \ExecuteOptions{nocenter}
 \ProcessOptions*
 
-\@ifclassloaded{scrartcl}{\poem@comp@koma@true}{}
-\@ifclassloaded{scrreprt}{\poem@comp@koma@true}{}
-\@ifclassloaded{scrbook}{\poem@comp@koma@true}{}
-
-\ifpoem@forcekomadisabled@ \poem@comp@koma@false \fi
-\def\poemlistofheading#1{%
-    \PackageWarning{lithie-boxes}{This command is only available with the koma-compatibilities.}%
-}
+\def\poemlistofheading#1{}
 
 % list of :D
+\RequirePackage{multicol}
 \AtBeginDocument{\@ifpackageloaded{microtype}{%
     \def\poem@ls@microtypehook{\microtypesetup{protrusion=false}}
 }{\def\poem@ls@microtypehook{}}}%
-\ifpoem@comp@koma@
 \def\poemlistofheading#1{\def\poem@listof@heading##1{#1}}
 \poemlistofheading{\section*{#1\@mkboth{#1}{#1}}}
 \AtBeginDocument{\let\poem@starttoc\@starttoc}
-\typeout{Koma-Script detected.}%
 \def\poem@newlistof#1#2#3{%
 \newcounter{#1}%
 \expandafter\newlength\csname cft#1numwidth\endcsname
 \expandafter\gdef\csname l@#1\endcsname##1##2{\@dottedtocline{1}{\csname cft#1numwidth\endcsname}{\csname cft#1numwidth\endcsname}{##1}{##2}}%
-\expandafter\gdef\csname listof#1\endcsname{\begingroup
+\expandafter\newcommand\csname listof#1\endcsname[1][1]{\begingroup
     \poem@ls@microtypehook
     \def\contentsname{#3}% may?
     \poem@listof@heading{\contentsname}%
+\ifnum##1>1\begin{multicols}{##1}
     \poem@starttoc{#2}%
+\end{multicols}\else\poem@starttoc{#2}\fi
 \endgroup}%
 }%
-\else
-\RequirePackage{tocloft}
-\let\poem@newlistof\newlistof\fi
 
+\poem@newlistof{poems}{lop}{List of Poems}%
+\def\l@poem#1#2{\textit{#1},~~#2\newline}
 % subdue
-
 {\catcode `\^^M\active%
 	\gdef\poem@@subdue{\catcode `\^^M\active\def^^M{\leavevmode\\*}}%
   % first newline will activate subude
@@ -72,7 +59,7 @@
 \def\date##1{\def\poem@date{##1}}%
 \def\comment##1{\def\poem@comment{##1}}%
 % start will inflict another begingroup
-\def\start{\poem@typesettitle\begingroup\poem@subdue\ignorespaces}}
+\def\start{\addcontentsline{lop}{poem}{\poem@title}\poem@typesettitle\begingroup\poem@subdue\ignorespaces}}
 \def\poem@exit{\poem@typesetend\endgroup\endgroup\poem@vfilln}
 \def\poem@firstoftwo#1#2{#1}
 \def\poem@secondoftwo#1#2{#2}
