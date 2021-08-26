@@ -54,10 +54,11 @@
 }
 
 \def\poem@init#1{\begingroup\ifx!#1!\else\poem@handleoptions{#1}\fi\poem@nvfill\poem@center
-\def\title##1{\def\poem@title{##1}}%
-\def\author##1{\def\poem@author{##1}}%
-\def\date##1{\def\poem@date{##1}}%
-\def\comment##1{\def\poem@comment{##1}}%
+\def\title##1{\def\poem@title{##1}\ignorespaces}%
+\def\author##1{\def\poem@author{##1}\ignorespaces}%
+\def\date##1{\def\poem@date{##1}\ignorespaces}%
+\def\comment##1{\def\poem@comment{##1}\ignorespaces}%
+\newcommand\data[4][]{\ifx!##1!\else\comment{##1}\fi\title{##2}\author{##3}\ifx!##4!\else\date{##4}\fi\start}
 % start will inflict another begingroup
 \def\start{\addcontentsline{lop}{poem}{\poem@title}\poem@typesettitle\begingroup\poem@subdue\ignorespaces}}
 \def\poem@exit{\poem@typesetend\endgroup\endgroup\poem@vfilln}
