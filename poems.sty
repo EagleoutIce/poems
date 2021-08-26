@@ -42,7 +42,11 @@
 \newenvironment{poem*}[1][]{\poem@init{#1}}{\poem@exit}
 
 \ifpoem@fancy@
-
+\RequirePackage{xcolor}
+\def\poemtitlecolor{purple}
+\def\poem@titlefont#1{\def\rmdefault{AlphaSlabOne-TLF}\rmfamily\normalfont\Large\color{\poemtitlecolor}#1}
+\def\poem@typesettitle{\normalfont\normalsize\sffamily\parindent\z@\relax\par{\poem@titlefont{\poem@title}\par}{\footnotesize\itshape\poem@author\poem@ifreg{date}{~--- \poem@date}{}\poem@ifreg{comment}{\begin{center}\poem@comment\end{center}}{}}\parskip\baselineskip\relax\par}
+\def\poem@typesetend{\par}
 \else
 \def\poem@typesettitle{\normalfont\normalsize\rmfamily\parindent\z@\relax\par\textbf{\poem@title}\par{\footnotesize\itshape\poem@author\poem@ifreg{date}{~--- \poem@date}{}\poem@ifreg{comment}{\begin{center}\poem@comment\end{center}}{}}\parskip\baselineskip\relax\par}
 \def\poem@typesetend{\par}
