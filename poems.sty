@@ -6,18 +6,18 @@
 \def\poem@opt#1#2{\expandafter\def\csname @poem@#1\endcsname{#2}\g@addto@macro\poem@opts{'#1', }}
 \poem@opt{vcenter}{\def\poem@nvfill{\null\vfill}\def\poem@vfilln{\vfill\null}}
 \poem@opt{novcenter}{\let\poem@nvfill\relax\let\poem@vfilln\relax}
-\poem@opt{hcenter}{\let\poem@center\centering\relax}
+\poem@opt{hcenter}{\let\poem@center\centering}
 \poem@opt{nohcenter}{\let\poem@center\relax}
+\poem@opt{center}{\@poem@vcenter\@poem@hcenter}
+\poem@opt{nocenter}{\@poem@novcenter\@poem@nohcenter}
 \def\poem@handle@ption#1{\ifcsname @poem@#1\endcsname\csname @poem@#1\endcsname\else\PackageError{\filename}{The option '#1' is not known'}{Try one of \poem@opts}\fi}
 % this allows to change them in the main document
 \def\poem@handleoptions#1{\protected@edef\@tmpa{#1}\@for\opt:=\@tmpa\do{\poem@handle@ption{\opt}}}
 
 \DeclareOption{fancy}{\poem@fancy@true}
 \DeclareOption{plain}{\poem@fancy@false}
-\DeclareOption{center}{\poem@handleoptions{vcenter,hcenter}}
-\DeclareOption{nocenter}{\poem@handleoptions{novcenter,nohcenter}}
 \DeclareOption*{\poem@handleoptions{\CurrentOption}}
-\ExecuteOptions{nocenter}
+\@poem@nocenter
 \ProcessOptions*
 
 \def\poemlistofheading#1{}
@@ -48,7 +48,7 @@
 \def\l@poem#1#2{\textit{#1},~~#2\newline}
 % subdue
 {\catcode `\^^M\active%
-	\gdef\poem@@subdue{\catcode `\^^M\active\def^^M{\leavevmode\\*}}%
+	\gdef\poem@@subdue{\catcode `\^^M\active\def^^M{\leavevmode\\}}%
   % first newline will activate subude
 	\gdef\poem@subdue{\catcode `\^^M\active\def^^M{\poem@@subdue}}
 }
@@ -66,18 +66,18 @@
 \def\poem@secondoftwo#1#2{#2}
 \def\poem@ifreg#1{\ifcsname poem@#1\endcsname\expandafter\poem@firstoftwo\else\expandafter\poem@secondoftwo\fi}
 
-\newenvironment{poem}[1][]{\poem@init{#1}}{\poem@exit\clearpage}
+\newenvironment{poem}[1][]{\clearpage\poem@init{#1}}{\poem@exit}
 \newenvironment{poem*}[1][]{\poem@init{#1}}{\poem@exit}
 
 \ifpoem@fancy@
 \RequirePackage{xcolor}
 \def\poemtitlecolor{purple}
 \def\poem@titlefont#1{\def\rmdefault{AlphaSlabOne-TLF}\rmfamily\normalfont\Large\color{\poemtitlecolor}#1}
-\def\poem@typesettitle{\normalfont\normalsize\sffamily\parindent\z@\relax\par{\poem@titlefont{\poem@title}\par}{\footnotesize\itshape\poem@author\poem@ifreg{date}{~--- \poem@date}{}\poem@ifreg{comment}{\begin{center}\poem@comment\end{center}}{}}\parskip\baselineskip\relax\par}
+\def\poem@typesettitle{\normalfont\normalsize\sffamily\parindent\z@\relax\par{\poem@titlefont{\strut\poem@title}\par}{\footnotesize\itshape\poem@author\poem@ifreg{date}{~--- \poem@date}{}\poem@ifreg{comment}{\begin{center}\poem@comment\end{center}}{}}\parskip\baselineskip\relax\par}
 \def\poem@typesetend{\par}
 \else
-\def\poem@typesettitle{\normalfont\normalsize\rmfamily\parindent\z@\relax\par\textbf{\poem@title}\par{\footnotesize\itshape\poem@author\poem@ifreg{date}{~--- \poem@date}{}\poem@ifreg{comment}{\begin{center}\poem@comment\end{center}}{}}\parskip\baselineskip\relax\par}
-\def\poem@typesetend{\par}
+\def\poem@typesettitle{\normalfont\normalsize\rmfamily\parindent\z@\relax\par\textbf{\strut\poem@title}\par{\footnotesize\itshape\poem@author\poem@ifreg{date}{~--- \poem@date}{}\parskip\baselineskip\relax\medskip\par}
+\def\poem@typesetend{\par\poem@ifreg{comment}{\begin{center}\scriptsize\itshape\poem@comment\end{center}}{}}}
 \fi
 
 \endinput
