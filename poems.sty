@@ -21,7 +21,9 @@
 \ProcessOptions*
 
 {\catcode `\^^M\active%
-	\gdef\poem@subdue{\catcode `\^^M\active\def^^M{\leavevmode\\*}}
+	\gdef\poem@@subdue{\catcode `\^^M\active\def^^M{\leavevmode\\*}}%
+  % first newline will activate subude
+	\gdef\poem@subdue{\catcode `\^^M\active\def^^M{\poem@@subdue}}
 }
 
 \def\poem@init#1{\begingroup\ifx!#1!\else\poem@handleoptions{#1}\fi\poem@nvfill\poem@center
@@ -32,7 +34,6 @@
 % start will inflict another begingroup
 \def\start{\poem@typesettitle\begingroup\poem@subdue\ignorespaces}}
 \def\poem@exit{\poem@typesetend\endgroup\endgroup\poem@vfilln}
-\def\poem@reg#1{\csname poem@#1\endcsname}
 \def\poem@firstoftwo#1#2{#1}
 \def\poem@secondoftwo#1#2{#2}
 \def\poem@ifreg#1{\ifcsname poem@#1\endcsname\expandafter\poem@firstoftwo\else\expandafter\poem@secondoftwo\fi}
@@ -43,7 +44,7 @@
 \ifpoem@fancy@
 
 \else
-\def\poem@typesettitle{\normalfont\normalsize\rmfamily\parindent\z@\relax\par\textbf{\poem@reg{title}}\par{\footnotesize\itshape\poem@reg{author}\poem@ifreg{date}{~--- \poem@reg{date}}{}\poem@ifreg{comment}{\begin{center}\poem@reg{comment}\end{center}}{}}\parskip.33\baselineskip\relax\par}
+\def\poem@typesettitle{\normalfont\normalsize\rmfamily\parindent\z@\relax\par\textbf{\poem@title}\par{\footnotesize\itshape\poem@author\poem@ifreg{date}{~--- \poem@date}{}\poem@ifreg{comment}{\begin{center}\poem@comment\end{center}}{}}\parskip\baselineskip\relax\par}
 \def\poem@typesetend{\par}
 \fi
 
