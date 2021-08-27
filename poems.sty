@@ -6,6 +6,8 @@
 \def\poem@opt#1#2{\expandafter\def\csname @poem@#1\endcsname{#2}\g@addto@macro\poem@opts{'#1', }}
 \poem@opt{vcenter}{\def\poem@nvfill{\null\vfill}\def\poem@vfilln{\vfill\null}}
 \poem@opt{novcenter}{\let\poem@nvfill\relax\let\poem@vfilln\relax}
+\poem@opt{fill}{\def\poem@vfilln{\vfill\null}}
+\poem@opt{nofill}{\let\poem@vfilln\relax}
 \poem@opt{hcenter}{\let\poem@center\centering}
 \poem@opt{nohcenter}{\let\poem@center\relax}
 \poem@opt{center}{\@poem@vcenter\@poem@hcenter}
@@ -45,7 +47,7 @@
 }%
 
 \poem@newlistof{poems}{lop}{List of Poems}%
-\def\l@poem#1#2{\textit{#1},~~#2\newline}
+\def\l@poem#1#2{\noindent\textit{#1},~~#2\newline}
 % subdue
 {\catcode `\^^M\active%
 	\gdef\poem@@subdue{\catcode `\^^M\active\def^^M{\leavevmode\\}}%
@@ -61,7 +63,7 @@
 \newcommand\data[4][]{\ifx!##1!\else\comment{##1}\fi\title{##2}\author{##3}\ifx!##4!\else\date{##4}\fi\start}
 % start will inflict another begingroup
 \def\start{\addcontentsline{lop}{poem}{\poem@title}\poem@typesettitle\begingroup\poem@subdue\ignorespaces}}
-\def\poem@exit{\poem@typesetend\endgroup\endgroup\poem@vfilln}
+\def\poem@exit{\poem@typesetend\endgroup\poem@vfilln\endgroup}
 \def\poem@firstoftwo#1#2{#1}
 \def\poem@secondoftwo#1#2{#2}
 \def\poem@ifreg#1{\ifcsname poem@#1\endcsname\expandafter\poem@firstoftwo\else\expandafter\poem@secondoftwo\fi}
