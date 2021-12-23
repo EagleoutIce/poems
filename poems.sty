@@ -1,24 +1,34 @@
-\def\filename{poems}
-\ProvidesPackage{\filename}[2021/8/26 v1.0 poems in latex]
+\ProvidesPackage{poems}[2021/8/26 v1.0 poems in latex]
 \newif\ifpoem@fancy@
 
 \let\poem@opts\@empty
-\def\poem@opt#1#2{\expandafter\def\csname @poem@#1\endcsname{#2}\g@addto@macro\poem@opts{'#1', }}
-\poem@opt{vcenter}{\def\poem@nvfill{\null\vfill}\def\poem@vfilln{\vfill\null}}
+\def\poem@opt#1#2{%
+    \expandafter\def\csname @poem@#1\endcsname{#2}\g@addto@macro\poem@opts{'#1', }%
+}
+% Define all options
+\poem@opt{vcenter}  {\def\poem@nvfill{\null\vfill}\def\poem@vfilln{\vfill\null}}
 \poem@opt{novcenter}{\let\poem@nvfill\relax\let\poem@vfilln\relax}
-\poem@opt{fill}{\def\poem@vfilln{\vfill\null}}
-\poem@opt{nofill}{\let\poem@vfilln\relax}
-\poem@opt{hcenter}{\let\poem@center\centering}
+\poem@opt{fill}     {\def\poem@vfilln{\vfill\null}}
+\poem@opt{nofill}   {\let\poem@vfilln\relax}
+\poem@opt{hcenter}  {\let\poem@center\centering}
 \poem@opt{nohcenter}{\let\poem@center\relax}
-\poem@opt{center}{\@poem@vcenter\@poem@hcenter}
-\poem@opt{nocenter}{\@poem@novcenter\@poem@nohcenter}
-\def\poem@handle@ption#1{\ifcsname @poem@#1\endcsname\csname @poem@#1\endcsname\else\PackageError{\filename}{The option '#1' is not known'}{Try one of \poem@opts}\fi}
+\poem@opt{center}   {\@poem@vcenter\@poem@hcenter}
+\poem@opt{nocenter} {\@poem@novcenter\@poem@nohcenter}
+\def\poem@handle@ption#1{%
+\ifcsname @poem@#1\endcsname
+  \csname @poem@#1\endcsname
+\else
+  \PackageError{poems}{The option '#1' is not known'}{Try one of \poem@opts}%
+\fi}
 % this allows to change them in the main document
 \def\poem@handleoptions#1{\protected@edef\@tmpa{#1}\@for\opt:=\@tmpa\do{\poem@handle@ption{\opt}}}
 
+% two package only options
 \DeclareOption{fancy}{\poem@fancy@true}
 \DeclareOption{plain}{\poem@fancy@false}
+% all others will be handled
 \DeclareOption*{\poem@handleoptions{\CurrentOption}}
+% set some defaults
 \@poem@nocenter
 \ProcessOptions*
 
@@ -26,9 +36,15 @@
 
 % list of :D
 \RequirePackage{multicol}
-\AtBeginDocument{\@ifpackageloaded{microtype}{%
-    \def\poem@ls@microtypehook{\microtypesetup{protrusion=false}}
-}{\def\poem@ls@microtypehook{}}}%
+\def\@poem@microtype@guard{%
+\@ifpackageloaded{microtype}{%
+    \def\poem@ls@microtypehook{\microtypesetup{protrusion=false}}%
+}{%
+    \def\poem@ls@microtypehook{}%
+}}
+\AtBeginDocument{\@poem@microtype@guard}%
+
+% list of poems
 \def\poemlistofheading#1{\def\poem@listof@heading##1{#1}}
 \poemlistofheading{\section*{#1\@mkboth{#1}{#1}}}
 \AtBeginDocument{\let\poem@starttoc\@starttoc}
@@ -48,6 +64,7 @@
 
 \poem@newlistof{poems}{lop}{List of Poems}%
 \def\l@poem#1#2{\noindent\textit{#1},~~#2\newline}
+
 % subdue
 {\catcode `\^^M\active%
 	\gdef\poem@@subdue{\catcode `\^^M\active\def^^M{\leavevmode\\}}%
