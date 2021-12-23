@@ -72,18 +72,36 @@
 	\gdef\poem@subdue{\catcode `\^^M\active\def^^M{\poem@@subdue}}
 }
 
-\def\poem@init#1{\begingroup\ifx!#1!\else\poem@handleoptions{#1}\fi\poem@nvfill\poem@center
-\def\title##1{\def\poem@title{##1}\ignorespaces}%
-\def\author##1{\def\poem@author{##1}\ignorespaces}%
-\def\date##1{\def\poem@date{##1}\ignorespaces}%
-\def\comment##1{\def\poem@comment{##1}\ignorespaces}%
-\newcommand\data[4][]{\ifx!##1!\else\comment{##1}\fi\title{##2}\author{##3}\ifx!##4!\else\date{##4}\fi\start}
-% start will inflict another begingroup
-\def\start{\addcontentsline{lop}{poem}{\poem@title}\poem@typesettitle\begingroup\poem@subdue\ignorespaces}}
+\AtBeginDocument{%
+\ifcsname phantomsection\endcsname
+  \let\poem@phantomsection\phantomsection
+\else
+  \let\poem@phantomsection\relax
+\fi}
+\def\poem@init#1{\begingroup
+    \ifx!#1!\else\poem@handleoptions{#1}\fi
+    \poem@nvfill\poem@center
+    \def\title##1{\def\poem@title{##1}\ignorespaces}%
+    \def\author##1{\def\poem@author{##1}\ignorespaces}%
+    \def\date##1{\def\poem@date{##1}\ignorespaces}%
+    \def\comment##1{\def\poem@comment{##1}\ignorespaces}%
+    \newcommand\data[4][]{\ifx!##1!\else\comment{##1}\fi\title{##2}\author{##3}\ifx!##4!\else\date{##4}\fi\start}%
+    % start will inflict another begingroup
+    \def\start{%
+        \poem@phantomsection
+        \addcontentsline{lop}{poem}{\poem@title}%
+        \poem@typesettitle\begingroup\poem@subdue\ignorespaces
+    }%
+}
 \def\poem@exit{\poem@typesetend\endgroup\poem@vfilln\endgroup}
 \def\poem@firstoftwo#1#2{#1}
 \def\poem@secondoftwo#1#2{#2}
-\def\poem@ifreg#1{\ifcsname poem@#1\endcsname\expandafter\poem@firstoftwo\else\expandafter\poem@secondoftwo\fi}
+\def\poem@ifreg#1{%
+\ifcsname poem@#1\endcsname
+  \expandafter\poem@firstoftwo
+\else
+  \expandafter\poem@secondoftwo
+\fi}
 
 \newenvironment{poem}[1][]{\clearpage\poem@init{#1}}{\poem@exit}
 \newenvironment{poem*}[1][]{\poem@init{#1}}{\poem@exit}
