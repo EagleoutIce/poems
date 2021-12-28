@@ -26,9 +26,7 @@
 % two package only options
 \DeclareOption{fancy}{\poem@fancy@true}
 \DeclareOption{plain}{\poem@fancy@false}
-% all others will be handled
-\DeclareOption*{\poem@handleoptions{\CurrentOption}}
-% set some defaults
+\DeclareOption*{\poem@handleoptions{\CurrentOption}} % all others will be handled
 \@poem@nocenter
 \ProcessOptions*
 
@@ -39,9 +37,7 @@
 \def\@poem@microtype@guard{%
 \@ifpackageloaded{microtype}{%
     \def\poem@ls@microtypehook{\microtypesetup{protrusion=false}}%
-}{%
-    \def\poem@ls@microtypehook{}%
-}}
+}{\let\poem@ls@microtypehook\relax}}
 \AtBeginDocument{\@poem@microtype@guard}%
 
 % list of poems
@@ -66,7 +62,7 @@
 \def\l@poem#1#2{\noindent\textit{#1},~~#2\newline}
 
 % subdue
-{\catcode `\^^M\active%
+{\catcode `\^^M\active
 	\gdef\poem@@subdue{\catcode `\^^M\active\def^^M{\leavevmode\\}}%
   % first newline will activate subude
 	\gdef\poem@subdue{\catcode `\^^M\active\def^^M{\poem@@subdue}}
